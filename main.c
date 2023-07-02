@@ -19,17 +19,19 @@ int main()
 
 
 
-    DoubleMatrix y = createMatrix(2,1);
-    y.M[0][0] = 10;
-    y.M[1][0] = 5;
+   
+    //DoubleMatrix y = createMatrix(2,1);
+    //y.M[0][0] = 10;
+    //y.M[1][0] = 5;
 
     int code;
 
-    DoubleMatrix s = solve(M,y,1e-5,&code);
+    //DoubleMatrix s = solve(M,y,1e-5,&code);
 
    // printMatrix(s);
 
-    DoubleMatrix yprime = matrixMultiplication(M,s);
+
+    //DoubleMatrix yprime = matrixMultiplication(M,s);
 
     //printMatrix(yprime);
 

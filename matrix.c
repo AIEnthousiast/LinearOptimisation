@@ -174,16 +174,16 @@ DoubleMatrix solve(DoubleMatrix M, DoubleMatrix b,double eps,int *code)
 {
     *code = 0; 
     DoubleMatrix solution = createMatrix(M.n,1);
-    printf("Solution:\n");
-    printMatrix(solution);
+    //printf("Solution:\n");
+    //printMatrix(solution);
     DoubleMatrix Augmented = hstack(M,b);
-    printf("\nAugmented:\n\n");
-    printMatrix(Augmented);
+    //printf("\nAugmented:\n\n");
+    //printMatrix(Augmented);
 
     DoubleMatrix ReducedAugmented = reducedEchelonForm(Augmented,eps);
-    printf("ReducedAugmented:\n\n");
-    printMatrix(ReducedAugmented);
-    printf("\n\n");
+    //printf("ReducedAugmented:\n\n");
+    //printMatrix(ReducedAugmented);
+    //printf("\n\n");
     
     for (int i = 0; i < ReducedAugmented.n;i++)
     {
@@ -216,6 +216,81 @@ DoubleMatrix solve(DoubleMatrix M, DoubleMatrix b,double eps,int *code)
 
 }   
 
+void reflectRow(DoubleMatrix *M)
+{
+    for (int i = 0; i< M->n / 2; i++)
+    {
+        exchangeRow(M,i,M->n - i - 1);
+    }
+}
+
+DoubleMatrix inverse(DoubleMatrix M,double eps)
+{
+    DoubleMatrix I = eye(M.n);
+    
+    
+    
+    DoubleMatrix A = hstack(M,I);
+    
+    DoubleMatrix R = reducedEchelonForm(A,eps);
+    if (R.M != NULL)
+    {
+        for (int i = R.n -1;i>=0;i--)
+        {
+            double a = R.M[i][i];
+            for (int j=i;j<R.m;j++)
+            {
+                R.M[i][j] /= a;
+            }
+
+            for (int k = 0;k<i;k++)
+            {
+                double b = R.M[k][i];
+                for (int l = i; l< R.m;l++)
+                {
+
+                    R.M[k][l] -= R.M[i][l] *  b;
+                }
+
+            }
+
+        }
+
+        
+        for (int i=0;i<I.n;i++)
+        {
+            for (int j=0;j<I.m;j++)
+            {
+
+                I.M[i][j] = R.M[i][I.m+j];
+            }
+        }
+
+
+    }
+
+    
+    freeMatrix(&R);
+    freeMatrix(&A);
+
+
+    return I;
+
+}
+
+DoubleMatrix eye(int n)
+{
+    DoubleMatrix M = createMatrix(n,n);
+    M.n = n;
+    M.m = n;
+
+    for (int i=0;i<n;i++)
+    {
+        M.M[i][i] = 1;
+    }
+
+    return M;
+}
 void freeMatrix(DoubleMatrix * M)
 {
     if (M->M != NULL)
