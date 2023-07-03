@@ -224,15 +224,37 @@ void reflectRow(DoubleMatrix *M)
     }
 }
 
+DoubleMatrix flop(DoubleMatrix M, DoubleMatrix N,double a)
+{
+    DoubleMatrix A = copyMatrix(M);
+    for (int i=0;i<A.n;i++)
+    {
+        for (int j=0;j<A.m;j++)
+        {
+            A.M[i][j] += a * N.M[i][j];
+        }
+    }
+    return A;
+}
+
+DoubleMatrix extractColumn(DoubleMatrix M, int c)
+{
+    DoubleMatrix X = createMatrix(M.n,1);
+
+    for (int i=0;i<M.n;i++)
+    {
+        X.M[i][0] = M.M[i][c];
+    }
+
+    return X;
+}
+
 DoubleMatrix inverse(DoubleMatrix M,double eps)
 {
     DoubleMatrix I = eye(M.n);
-    
-    
-    
     DoubleMatrix A = hstack(M,I);
-    
     DoubleMatrix R = reducedEchelonForm(A,eps);
+
     if (R.M != NULL)
     {
         for (int i = R.n -1;i>=0;i--)
@@ -242,40 +264,26 @@ DoubleMatrix inverse(DoubleMatrix M,double eps)
             {
                 R.M[i][j] /= a;
             }
-
             for (int k = 0;k<i;k++)
             {
                 double b = R.M[k][i];
                 for (int l = i; l< R.m;l++)
                 {
-
                     R.M[k][l] -= R.M[i][l] *  b;
                 }
-
             }
-
         }
-
-        
         for (int i=0;i<I.n;i++)
         {
             for (int j=0;j<I.m;j++)
             {
-
                 I.M[i][j] = R.M[i][I.m+j];
             }
         }
-
-
     }
-
-    
     freeMatrix(&R);
     freeMatrix(&A);
-
-
     return I;
-
 }
 
 DoubleMatrix eye(int n)
@@ -290,6 +298,38 @@ DoubleMatrix eye(int n)
     }
 
     return M;
+}
+
+DoubleMatrix extract(DoubleMatrix M, int * basis,int c,int axis)
+{
+    DoubleMatrix A;
+    if (axis == 0)
+    {
+        A = createMatrix(M.n,c);
+
+        for (int i=0;i<M.n;i++)
+        {
+            for (int j=0;j<c;j++)
+            {
+                A.M[i][j] = M.M[i][basis[j]];
+            }
+        }
+    }
+    else
+    {
+        A = createMatrix(c,M.m);
+
+        for (int i=0;i<c;i++)
+        {
+            for (int j=0;j<M.m;j++)
+            {
+                A.M[i][j] = M.M[basis[i]][j];
+            }
+        }
+    }
+
+    return A;
+
 }
 void freeMatrix(DoubleMatrix * M)
 {
