@@ -31,6 +31,11 @@ DoubleMatrix createMatrix(int n, int m)
 
 DoubleMatrix matrixMultiplication(DoubleMatrix M , DoubleMatrix N)
 {
+
+    if (M.m != N.n || M.M == NULL || N.M == NULL)
+    {
+        exit(1);
+    }
     DoubleMatrix A = createMatrix(M.n,N.m);
 
     if (A.M != NULL)
@@ -86,12 +91,14 @@ void printMatrix(DoubleMatrix M)
 DoubleMatrix copyMatrix(DoubleMatrix M)
 {
     DoubleMatrix A = createMatrix(M.n,M.m);
-
-    for (int i=0;i<M.n;i++)
+    if (M.M != NULL)
     {
-        for (int j=0;j<M.m;j++)
+        for (int i=0;i<M.n;i++)
         {
-            A.M[i][j] = M.M[i][j];
+            for (int j=0;j<M.m;j++)
+            {
+                A.M[i][j] = M.M[i][j];
+            }
         }
     }
     return A;
@@ -100,7 +107,7 @@ DoubleMatrix reducedEchelonForm(DoubleMatrix M,double eps)
 {
     DoubleMatrix A = copyMatrix(M);
 
-    if (A.M != NULL)
+    if (A.M != NULL && M.M != NULL)
     {
         for (int i = 0; i < A.n - 1;i++)
         {
@@ -135,7 +142,7 @@ DoubleMatrix reducedEchelonForm(DoubleMatrix M,double eps)
 
 void exchangeRow(DoubleMatrix * M,int i, int j)
 {
-    if (i < M->n && j < M->n)
+    if (M->M != NULL && i < M->n && j < M->n)
     {
         double * temp = M->M[i];
         M->M[i] = M->M[j];
@@ -143,13 +150,11 @@ void exchangeRow(DoubleMatrix * M,int i, int j)
     }
 }
 
-
 DoubleMatrix hstack(DoubleMatrix M1, DoubleMatrix M2)
 {
     DoubleMatrix A = createMatrix(M1.n, M1.m + M2.m);
 
-
-    if (A.M != NULL)
+    if (A.M != NULL && M1.M != NULL && M2.M != NULL)
     {
         for (int i = 0; i < M1.n;i++)
         {
@@ -169,6 +174,8 @@ DoubleMatrix hstack(DoubleMatrix M1, DoubleMatrix M2)
 
     return A;
 }
+
+
 
 DoubleMatrix solve(DoubleMatrix M, DoubleMatrix b,double eps,int *code)
 {
@@ -204,8 +211,6 @@ DoubleMatrix solve(DoubleMatrix M, DoubleMatrix b,double eps,int *code)
             {
                 solution.M[i][0] -= ReducedAugmented.M[i][j] * solution.M[j][0];
             }
-            
-            
             solution.M[i][0] = solution.M[i][0] / ReducedAugmented.M[i][i];
         }
     }
@@ -213,16 +218,8 @@ DoubleMatrix solve(DoubleMatrix M, DoubleMatrix b,double eps,int *code)
     freeMatrix(&Augmented);
     freeMatrix(&ReducedAugmented);
     return solution;
-
 }   
 
-void reflectRow(DoubleMatrix *M)
-{
-    for (int i = 0; i< M->n / 2; i++)
-    {
-        exchangeRow(M,i,M->n - i - 1);
-    }
-}
 
 DoubleMatrix flop(DoubleMatrix M, DoubleMatrix N,double a)
 {
@@ -241,11 +238,15 @@ DoubleMatrix extractColumn(DoubleMatrix M, int c)
 {
     DoubleMatrix X = createMatrix(M.n,1);
 
-    for (int i=0;i<M.n;i++)
+    if (X.M != NULL)
     {
-        X.M[i][0] = M.M[i][c];
+        for (int i=0;i<M.n;i++)
+        {
+            X.M[i][0] = M.M[i][c];
+        }
     }
 
+    
     return X;
 }
 
@@ -292,6 +293,10 @@ DoubleMatrix eye(int n)
     M.n = n;
     M.m = n;
 
+    if (M.M == NULL)
+    {
+        exit(1);
+    }
     for (int i=0;i<n;i++)
     {
         M.M[i][i] = 1;
@@ -307,6 +312,9 @@ DoubleMatrix extract(DoubleMatrix M, int * basis,int c,int axis)
     {
         A = createMatrix(M.n,c);
 
+        if (A.M == NULL)
+            exit(1);
+
         for (int i=0;i<M.n;i++)
         {
             for (int j=0;j<c;j++)
@@ -318,7 +326,9 @@ DoubleMatrix extract(DoubleMatrix M, int * basis,int c,int axis)
     else
     {
         A = createMatrix(c,M.m);
-
+        if (A.M == NULL)
+            exit(1);
+            
         for (int i=0;i<c;i++)
         {
             for (int j=0;j<M.m;j++)

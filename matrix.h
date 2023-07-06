@@ -24,7 +24,6 @@ DoubleMatrix eye(int n);
 DoubleMatrix extract(DoubleMatrix M, int * basis,int c,int axis);
 DoubleMatrix flop(DoubleMatrix M, DoubleMatrix N,double a);
 DoubleMatrix extractColumn(DoubleMatrix M, int c);
-void reflectRow(DoubleMatrix * M);
 DoubleMatrix inverse(DoubleMatrix M,double eps);
 void printMatrix(DoubleMatrix M);
 void exchangeRow(DoubleMatrix * M,int i, int j);
