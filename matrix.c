@@ -107,22 +107,28 @@ DoubleMatrix reducedEchelonForm(DoubleMatrix M,double eps)
 {
     DoubleMatrix A = copyMatrix(M);
 
+    //permute = malloc((M.n - 1) * sizeof * permute);
+
     if (A.M != NULL && M.M != NULL)
     {
         for (int i = 0; i < A.n - 1;i++)
         {
+            
             // search for the largest pivot
             int pivotIndex = i;
+
             for (int j=i+1;j<A.n;j++)
             {
-                if (fabs(M.M[pivotIndex][i]) < abs(M.M[j][i]))
+                if (fabs(A.M[pivotIndex][i]) < fabs(A.M[j][i]))
                 {
                     pivotIndex = j;
                 }
             }
-
+            
             exchangeRow(&A,i,pivotIndex);
-            if (A.M[i][i] > eps)
+
+            
+            if (fabs(A.M[i][i]) > eps)
             {
                 for (int j=i+1;j<A.n;j++)
                 {
@@ -135,6 +141,7 @@ DoubleMatrix reducedEchelonForm(DoubleMatrix M,double eps)
                 }
             }
         }
+
     }
 
     return A;
@@ -184,10 +191,12 @@ DoubleMatrix solve(DoubleMatrix M, DoubleMatrix b,double eps,int *code)
     //printf("Solution:\n");
     //printMatrix(solution);
     DoubleMatrix Augmented = hstack(M,b);
+    //printMatrix(Augmented);
     //printf("\nAugmented:\n\n");
     //printMatrix(Augmented);
 
     DoubleMatrix ReducedAugmented = reducedEchelonForm(Augmented,eps);
+    //printMatrix(ReducedAugmented);
     //printf("ReducedAugmented:\n\n");
     //printMatrix(ReducedAugmented);
     //printf("\n\n");
@@ -237,7 +246,6 @@ DoubleMatrix flop(DoubleMatrix M, DoubleMatrix N,double a)
 DoubleMatrix extractColumn(DoubleMatrix M, int c)
 {
     DoubleMatrix X = createMatrix(M.n,1);
-
     if (X.M != NULL)
     {
         for (int i=0;i<M.n;i++)
@@ -245,8 +253,6 @@ DoubleMatrix extractColumn(DoubleMatrix M, int c)
             X.M[i][0] = M.M[i][c];
         }
     }
-
-    
     return X;
 }
 

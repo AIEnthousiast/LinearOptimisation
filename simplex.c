@@ -100,7 +100,7 @@ void insertDoubleTabPr(DoubleTabPr * T,double el,int * code)
 int inside(int * array,int n,int el)
 {
     int i = 0;
-    while (i < n && array[i] != el)
+    while (i < n && i >= 0 && array[i] != el)
     {
         i++;
     }
@@ -114,8 +114,10 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
     DoubleMatrix x = createMatrix(A.m,1);
 
     DoubleMatrix Ab = extract(A,B,sb,0);
-    DoubleMatrix I = inverse(Ab,1e-5);
+    DoubleMatrix xB;
 
+   
+    DoubleMatrix I = inverse(Ab,1e-5);
     if (I.M == NULL)
     {
         *code = 2;
@@ -124,12 +126,12 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
         freeMatrix(&I);
         return x;
     }
-
-    DoubleMatrix xB = matrixMultiplication(I,b);
-
+    xB = matrixMultiplication(I,b);
     freeMatrix(&I);
-    freeMatrix(&Ab);
 
+
+    
+    freeMatrix(&Ab);
 
     int a = 0;
     for (int i=0;i<x.n;i++)
@@ -148,8 +150,8 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
     }
     
 
-
     int * N = malloc((A.m - sb) * sizeof * N);
+    
     //Construct N
     a = 0;
     int i = 0;
@@ -162,36 +164,29 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
         }
         i++;
     }
-    
+    int l = 0;
     while (1)
     {
+        DoubleMatrix cnBar;
+       
         DoubleMatrix An = extract(A,N,A.m - sb,0);
         DoubleMatrix cn = extract(c,N,A.m - sb,1);
+
 
         DoubleMatrix Ab = extract(A,B,sb,0);
         DoubleMatrix cB = extract(c,B,sb,1);
         DoubleMatrix AbT = transpose(Ab);
         
-        DoubleMatrix y = solve(AbT,cB,eps,&i);
-       
+        DoubleMatrix y = solve(AbT,cB,eps,&i);  
         DoubleMatrix AnT = transpose(An);
         DoubleMatrix R = matrixMultiplication(AnT,y);
-        
-        DoubleMatrix cnBar = flop(cn,R,-1);
 
         
-
         
+        
+        cnBar = flop(cn,R,-1);
 
-        IntTabPr iTPr;
-        iTPr.nbEl = 0;
-        for (int i = 0; i<cnBar.n;i++)
-        {
-            if (cnBar.M[i][0] > eps)
-            {
-                insertIntTabPr(&iTPr,i,&i);
-            }
-        }
+
 
         freeMatrix(&AbT);
         freeMatrix(&y);
@@ -199,11 +194,34 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
         freeMatrix(&AnT);
         freeMatrix(&cn);
         freeMatrix(&R);
-        freeMatrix(&cnBar);
+        
 
+        
+
+        IntTabPr iTPr;
+        iTPr.nbEl = 0;
+        
+        int coder;
+        for (int i = 0; i<cnBar.n;i++)
+        {
+
+            if (cnBar.M[i][0] > eps)
+            {
+                insertIntTabPr(&iTPr,i,&coder);
+            }
+        }
+
+        //printf("N:\n");
+        //printTab(N,A.m - sb);
+        //printf("CN:\n");
+        //printMatrix(cnBar);
+        freeMatrix(&cnBar);
 
         if (iTPr.nbEl == 0)
         {
+        
+            
+
             freeMatrix(&Ab);
             freeMatrix(&cB);
             freeMatrix(&xB);
@@ -214,7 +232,7 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
             int e = iTPr.tab[0];
             DoubleMatrix in = extractColumn(A,N[e]);
             DoubleMatrix d = solve(Ab,in,eps,&i);
-
+            
             freeMatrix(&in);
 
             int r = -1;
@@ -227,38 +245,100 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
                     double tpot = xB.M[i][0] / d.M[i][0]; 
                     if (tpot < t)
                     {
-                    t = tpot;
-                    r = i; 
+                        t = tpot;
+                        r = i; 
                     }
                 }
                 
             }
 
+            
             freeMatrix(&Ab);
             freeMatrix(&cB);
 
             int a = 0;
 
+            DoubleMatrix comp = hstack(xB,d);
+            //printf("Comp:\n");
+            //printMatrix(comp);
+            //printf(".............................\n\n");
+            freeMatrix(&comp);
             
             if (r != -1)
             {
 
-                
                 for (int i=0;i<xB.n;i++)
                 {
                     xB.M[i][0] -= d.M[i][0] * t;
                 }
 
+
                 freeMatrix(&d);
 
-                
                 xB.M[r][0] = t;
+
+
 
                 int a = 0;
 
+                //printf("Sortant:%d-Entrant:%d\n",B[r],N[e]);
                 int temp = B[r];
                 B[r] = N[e];
                 N[e] = temp;
+
+            
+
+
+                //sort B and xB
+
+                
+
+                if (r > 0 && B[r] < B[r-1])
+                {
+                    int i = r;
+                    while (i > 0  && i < sb && B[i] < B[i-1])
+                    {
+                        int temp = B[i-1];
+                        float tempx = xB.M[i-1][0];
+                        
+
+                        B[i-1] = B[i];
+                        xB.M[i-1][0] = xB.M[i][0];
+
+                        B[i] = temp;
+                        xB.M[i][0] = tempx;
+                        i++;
+                    }
+                }
+                else
+                {
+                    if (r < sb - 1 && B[r] > B[r+1])
+                    {
+                        int i = r;
+                        
+                        while (i < sb - 1 && i >= 0 && B[i] > B[i+1])
+                        {
+                            int temp = B[i+1];
+                            float tempx = xB.M[i+1][0];
+
+
+                            B[i+1] = B[i];
+                            xB.M[i+1][0] = xB.M[i][0];
+
+                            B[i] = temp;
+                            xB.M[i][0] = tempx;
+                            i++;
+                        }  
+                    }
+                }
+                //printTab(B,sb);
+
+
+                //printMatrix(xB);
+                //printf("-------------------\n");
+                //printf("*********************\n");
+                //printTab(B,sb);printf("----------------------\n");
+
 
                 for (int i=0;i<x.n;i++)
                 {
@@ -271,6 +351,9 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
                         x.M[i][0] = xB.M[getIndex(B,sb,i)][0];
                     }
                 }
+            
+                l++;
+
             }
             else{
                 *code = 1;
