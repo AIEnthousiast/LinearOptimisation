@@ -5,6 +5,7 @@
 
 int * findFeasibleBasis(DoubleMatrix A , DoubleMatrix b,  double eps, int * code)
 {
+    *code = 0;
     int sb = A.n;
 
     int * B = malloc(sb * sizeof* B);
@@ -16,7 +17,6 @@ int * findFeasibleBasis(DoubleMatrix A , DoubleMatrix b,  double eps, int * code
 
     DoubleMatrix Aprime = createMatrix(A.n,A.m+1);
     DoubleMatrix cprime = createMatrix(A.m+1,1);
-
 
     for (int i=0;i<A.n;i++)
     {
@@ -33,9 +33,6 @@ int * findFeasibleBasis(DoubleMatrix A , DoubleMatrix b,  double eps, int * code
     {
         cprime.M[i+1][0] = 0; 
     }
-
-    //choose a starting basis
-
 
     double t = INFINITY;
     int r = -1;
@@ -64,23 +61,32 @@ int * findFeasibleBasis(DoubleMatrix A , DoubleMatrix b,  double eps, int * code
             B[i] += 1;
         }
 
-        //printTab(B,sb);
-        //printf("++++++++\n");
-
+        
         DoubleMatrix x = simplexMethod(Aprime,b,cprime,B,sb,eps,&r);
-        //printMatrix(x);
         freeMatrix(&x);
 
-        for (int i=0;i<sb;i++)
+
+        if (B[0] == 0)
         {
-            B[i]--;
+            *code = 1;
+            
         }
+        else{
+            for (int i=0;i<sb;i++)
+            {
+                B[i]--;
+            }
+        }
+        
+        freeMatrix(&Aprime);
+        freeMatrix(&cprime);
         return B;
     }
     else
     {
+        freeMatrix(&Aprime);
+        freeMatrix(&cprime);
         return B;
     }
-
 
 }

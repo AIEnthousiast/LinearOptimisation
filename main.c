@@ -6,8 +6,6 @@
 
 int main()
 {
-
-    
     FILE * f = fopen("Phase1PL.txt","r");
     DoubleMatrix A;
     DoubleMatrix b;
@@ -21,20 +19,39 @@ int main()
     readPLFromFile(&A,&b,&c,&B,&sb,f);
     fclose(f);
 
+    transformInequalities(&A,&b);
 
     int * C = findFeasibleBasis(A,b,1e-5,&code);
-    //printTab(C,sb);
-    DoubleMatrix x = simplexMethod(A,b,c,C,sb,1e-5,&code);
+    printTab(C,sb);
+    
+    if (code == 0)
+    {
+        DoubleMatrix x = simplexMethod(A,b,c,C,sb,1e-5,&code);
 
-    printf("Solution:\n");
-    printMatrix(x);
+        if (code == 1)
+        {
+            printf("Non borné\n");
+        }
+        else
+        {
+            printf("Solution:\n");
+            printMatrix(x);
+        }
+        
+        freeMatrix(&x);
+    }
+    else
+    {
+        printf("Problème non réalisable\n");
+    }
+    
     //printTab(B,sb);
 
     freeMatrix(&A);
     freeMatrix(&b);
     freeMatrix(&c);
 
-    //freeMatrix(&x);
+    free(C);
 
     free(B);
     

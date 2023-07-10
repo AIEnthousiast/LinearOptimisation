@@ -107,7 +107,6 @@ DoubleMatrix reducedEchelonForm(DoubleMatrix M,double eps)
 {
     DoubleMatrix A = copyMatrix(M);
 
-    //permute = malloc((M.n - 1) * sizeof * permute);
 
     if (A.M != NULL && M.M != NULL)
     {
@@ -188,18 +187,10 @@ DoubleMatrix solve(DoubleMatrix M, DoubleMatrix b,double eps,int *code)
 {
     *code = 0; 
     DoubleMatrix solution = createMatrix(M.n,1);
-    //printf("Solution:\n");
-    //printMatrix(solution);
+    
     DoubleMatrix Augmented = hstack(M,b);
-    //printMatrix(Augmented);
-    //printf("\nAugmented:\n\n");
-    //printMatrix(Augmented);
-
+   
     DoubleMatrix ReducedAugmented = reducedEchelonForm(Augmented,eps);
-    //printMatrix(ReducedAugmented);
-    //printf("ReducedAugmented:\n\n");
-    //printMatrix(ReducedAugmented);
-    //printf("\n\n");
     
     for (int i = 0; i < ReducedAugmented.n;i++)
     {

@@ -362,6 +362,22 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
                 return x;
             }
         }
+    }   
+}
+void transformInequalities(DoubleMatrix * A, DoubleMatrix * b)
+{
+    int n = A->n;
+    int m = A->m;
+
+    for (int i=0;i<A->n;i++)
+    {
+        if (A->M[i][m - n + i] < 0)
+        {
+            for (int j=0;j<m;j++)
+            {
+                A->M[i][j] *= -1;
+            }
+            b->M[i][0] *= -1;
+        }
     }
-    
 }
