@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "simplex.h"
 #include <math.h>
+#include "phase1.h"
+
 
 IntTabPr createIntTabPr()
 {
@@ -219,8 +221,7 @@ DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int *
 
         if (iTPr.nbEl == 0)
         {
-        
-            
+    
 
             freeMatrix(&Ab);
             freeMatrix(&cB);
@@ -380,4 +381,53 @@ void transformInequalities(DoubleMatrix * A, DoubleMatrix * b)
             b->M[i][0] *= -1;
         }
     }
+}
+
+
+DoubleMatrix *  solveLpProblem(char * filename,int * code)
+{
+    FILE * f = fopen(filename,"r");
+    DoubleMatrix A;
+    DoubleMatrix b;
+    DoubleMatrix c;
+
+    int * B;
+    int sb = 0;
+    *code = 0;
+    
+
+    DoubleMatrix * x = malloc(sizeof *x);
+
+    readPLFromFile(&A,&b,&c,&B,&sb,f);
+    fclose(f);
+
+    transformInequalities(&A,&b);
+
+
+
+
+    int * C = findFeasibleBasis(A,b,1e-5,code);
+    
+    if (*code == 0)
+    {
+        *x = simplexMethod(A,b,c,C,sb,1e-5,code);
+        
+    }
+    else
+    {
+        *code = -1;
+    }
+   
+    
+
+    freeMatrix(&A);
+    freeMatrix(&b);
+    freeMatrix(&c);
+
+    free(C);
+
+    free(B);
+
+    return x;
+
 }

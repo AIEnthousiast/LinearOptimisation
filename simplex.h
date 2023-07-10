@@ -26,4 +26,7 @@ void printTab(int * T, int n);
 DoubleMatrix simplexMethod(DoubleMatrix A, DoubleMatrix b, DoubleMatrix c, int * B,int sb,double eps,int * code);
 void transformInequalities(DoubleMatrix * A, DoubleMatrix * b);
 
+DoubleMatrix *  solveLpProblem(char * filename,int * code);
+
+
 #endif

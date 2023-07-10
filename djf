@@ -1,0 +1,49 @@
+FILE * f = fopen("Phase1PL.txt","r");
+    DoubleMatrix A;
+    DoubleMatrix b;
+    DoubleMatrix c;
+
+    int * B;
+    int sb = 0;
+    int code = 0;
+    
+
+    readPLFromFile(&A,&b,&c,&B,&sb,f);
+    fclose(f);
+
+    transformInequalities(&A,&b);
+
+    int * C = findFeasibleBasis(A,b,1e-5,&code);
+    printTab(C,sb);
+    
+    if (code == 0)
+    {
+        DoubleMatrix x = simplexMethod(A,b,c,C,sb,1e-5,&code);
+
+        if (code == 1)
+        {
+            printf("Non borné\n");
+        }
+        else
+        {
+            printf("Solution:\n");
+            printMatrix(x);
+        }
+        
+        freeMatrix(&x);
+    }
+    else
+    {
+        printf("Problème non réalisable\n");
+    }
+    
+    //printTab(B,sb);
+
+    freeMatrix(&A);
+    freeMatrix(&b);
+    freeMatrix(&c);
+
+    free(C);
+
+    free(B);
+    
